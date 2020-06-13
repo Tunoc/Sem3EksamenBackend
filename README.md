@@ -1,5 +1,5 @@
 # StartCode_CA3
-#### Asignment: [CA3 QuickStart Project](https://github.com/Gold-ish/StartCode_CA3_Backend/blob/master/CA3-QuickStart-project.pdf)
+[![Build Status](https://www.travis-ci.com/Tunoc/Sem3EksamenBackend.svg?branch=master)](https://www.travis-ci.com/Tunoc/Sem3EksamenBackend)
 
 ## Frontend
 This is the frontend that is supposed to be used with this backend.
