@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dat.sem3.security</groupId>
-    <artifactId>sem3eksamenbackend_16-06-2020</artifactId>
+    <artifactId>sem3eksamenbackend</artifactId>
     <version>1</version>
     <packaging>war</packaging>
 
