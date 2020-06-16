@@ -9,7 +9,7 @@ import utils.HttpUtils;
  *
  * @author rando
  */
-public class KanyeRestFetcher implements FetcherInterface {
+public class KanyeRestFetcher {
     private String url;
     private KanyeRestDTO kanyeRestDto;
 
@@ -17,7 +17,6 @@ public class KanyeRestFetcher implements FetcherInterface {
         this.url = url;
     }
     
-    @Override
     public void doWork() throws IOException {
         Gson gson = new Gson();
         String kanyeRestAPI = HttpUtils.fetchData(url);

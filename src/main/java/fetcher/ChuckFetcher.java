@@ -9,7 +9,7 @@ import utils.HttpUtils;
  *
  * @author rando
  */
-public class ChuckFetcher implements FetcherInterface {
+public class ChuckFetcher {
 
     private String url;
     private ChuckDTO chuckDTO;
@@ -18,7 +18,6 @@ public class ChuckFetcher implements FetcherInterface {
         this.url = url;
     }
 
-    @Override
     public void doWork() throws IOException {
         Gson gson = new Gson();
         String icndb = HttpUtils.fetchData(url);

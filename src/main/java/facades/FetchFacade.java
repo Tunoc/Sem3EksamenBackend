@@ -1,12 +1,9 @@
 package facades;
 
 import com.google.gson.Gson;
-import dto.CompleteDTO;
 import dto.RecipeDTO;
-import fetcher.ChuckFetcher;
-import fetcher.FetcherInterface;
-import fetcher.KanyeRestFetcher;
-import fetcher.OmdbFetcher;
+import errorhandling.NoIdExistsException;
+import fetcher.RecipeFetcher;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,48 +32,66 @@ public class FetchFacade {
         return instance;
     }
 
-    public static List<RecipeDTO> getAllRecipe() throws IOException {
+//    public static void main(String[] args) throws IOException, InterruptedException {
+//        List<Long> idList = new ArrayList();
+//        idList.add(1L);
+//        idList.add(3L);
+//        List<RecipeDTO> test = new ArrayList();
+//        test.addAll(0, fetchParallel(idList));
+//        System.out.println(test.get(0));
+//        System.out.println(test.get(1));
+//      //Husk at gøre metoderne statiske hvis de skal kunne testes manuelt via main.
+//    }
+
+    public List<RecipeDTO> getAllRecipe() throws IOException {
         String fetchedJSONString = HttpUtils.fetchData("https://cphdat.dk/recipes");
         if (fetchedJSONString.contains("error")) {
             //throw new MovieNotFoundException("No movie found with id: " + id);
         }
         //test test = gson.fromJson(fetchedJSONString, test.class);
-        
-        //RecipeCollectionDTO rcDTO = new RecipeCollectionDTO(gson.fromJson(fetchedJSONString, RecipeCollectionDTO.class));
+        List<RecipeDTO> rDTOList = new ArrayList();
+
+        String editedFetchString = fetchedJSONString;
+
+        do {
+            int recepieStart = editedFetchString.indexOf("\":{");
+            recepieStart += 2;
+
+            String recepieIDs = editedFetchString.substring(editedFetchString.indexOf("\"") + 1);
+            recepieIDs = recepieIDs.substring(0, recepieIDs.indexOf("\""));
+            Long recipeID = Long.parseLong(recepieIDs);
+
+            int recepieEnd;
+            if (! !editedFetchString.contains("},")) {
+                recepieEnd = editedFetchString.indexOf("},");
+                recepieEnd += 1;
+            } else {
+                recepieEnd = editedFetchString.length() - 1;
+            }
+
+            String recepieDTOString = editedFetchString.substring(recepieStart, recepieEnd);
+            RecipeDTO constructRecipeDTO = gson.fromJson(recepieDTOString, RecipeDTO.class);
+            constructRecipeDTO.setId(recipeID);
+            rDTOList.add(constructRecipeDTO);
+
+            editedFetchString = editedFetchString.substring(recepieEnd, editedFetchString.length());
+        } while (editedFetchString.length() > 3);
+        //RecipeCollectionDTO rcDTO = new RecipeCollectionDTO(gson.fromJson(fetchedJSONString, RecipeDTO.class));
         //Fix the conversion from recepies to something i can use.
-        
-        String editedString = fetchedJSONString.substring(1, fetchedJSONString.length()-1);
-        
-        
-        
-        List<RecipeDTO> rDTO = new ArrayList();
-        rDTO.add(gson.fromJson(editedString, RecipeDTO.class));
-        System.out.println(rDTO);
-        return rDTO;
-    }
-    
-    public static void main(String[] args) throws IOException {
-        List<RecipeDTO> test = new ArrayList();
-        test.addAll(0, getAllRecipe());
-        
+        //String editedString = fetchedJSONString.substring(1, fetchedJSONString.length()-1);
+        return rDTOList;
     }
 
-    public CompleteDTO runParalel() throws InterruptedException {
-        OmdbFetcher omdbFetcher = new OmdbFetcher("http://www.omdbapi.com/?t=Game%20Of%20Thrones&Season1&apikey=6b10a5de");
-        ChuckFetcher chuckFetcher = new ChuckFetcher("https://api.chucknorris.io/jokes/random");
-        KanyeRestFetcher kanyerestFetcher = new KanyeRestFetcher("https://api.kanye.rest/");
-        
-        //Lav om her så den paralel fetcher recepies baseret på ens recepie ID'er.
-        
-        List<FetcherInterface> urls = new ArrayList();
-        urls.add(omdbFetcher);
-        urls.add(chuckFetcher);
-        urls.add(kanyerestFetcher);
-        ExecutorService workingJack = Executors.newFixedThreadPool(3);
-        for (FetcherInterface fetch : urls) {
+    public List<RecipeDTO> fetchParallel(List<Long> idList) throws InterruptedException {
+        List<RecipeFetcher> fetchCalls = new ArrayList<>();
+        for (long recepieID : idList) {
+            fetchCalls.add(new RecipeFetcher(recepieID));
+        }
+        ExecutorService workingJack = Executors.newFixedThreadPool(7); //7 because there are 7 days a week.
+        for (RecipeFetcher fc : fetchCalls) {
             Runnable task = () -> {
                 try {
-                    fetch.doWork();
+                    fc.doWork();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -85,7 +100,19 @@ public class FetchFacade {
         }
         workingJack.shutdown();
         workingJack.awaitTermination(15, TimeUnit.SECONDS);
-        return new CompleteDTO(omdbFetcher.getOmdbApiDTO(), chuckFetcher.getChuckDTO(), kanyerestFetcher.getKanyeRestDto());
+        List<RecipeDTO> returnList = new ArrayList<>();
+        for (RecipeFetcher fc : fetchCalls) {
+            returnList.add(fc.getRecipeDTO());
+        }
+        return returnList;
     }
 
+    public RecipeDTO getRecepieByIdSimple(Long id) throws IOException, NoIdExistsException {
+        String fetchedJSONString = HttpUtils.fetchData("https://cphdat.dk/recipe/" + id);
+        if (fetchedJSONString.contains("error")) {
+            throw new NoIdExistsException();
+        }
+        RecipeDTO fetchedRecipe = gson.fromJson(fetchedJSONString, RecipeDTO.class);
+        return fetchedRecipe;
+    }
 }

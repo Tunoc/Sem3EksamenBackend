@@ -1,28 +1,34 @@
 package fetcher;
 
-import com.google.gson.Gson;
 import dto.RecipeDTO;
+import errorhandling.NoIdExistsException;
+import facades.FetchFacade;
 import java.io.IOException;
-import utils.HttpUtils;
 
 /**
  *
  * @author rando
  */
-public class RecipeFetcher implements FetcherInterface{
-    
-    private String url;
-    private RecipeDTO RecipeDTO;
+public class RecipeFetcher {
 
-    public RecipeFetcher(String url) {
-        this.url = url;
+    private Long id;
+    private RecipeDTO RecipeDTO;
+    private boolean isCalled = false;
+
+    public RecipeFetcher(Long id) {
+        this.id = id;
     }
-    
-    @Override
-    public void doWork() throws IOException {
-        Gson gson = new Gson();
-        String Recipe = HttpUtils.fetchData(url);
-        RecipeDTO = gson.fromJson(Recipe, RecipeDTO.class);
+
+    public void doWork() throws IOException, NoIdExistsException {
+        if (isCalled) {
+            return; //Tag values allready set
+        }
+        isCalled = true;
+        RecipeDTO = FetchFacade.getFetchFacade().getRecepieByIdSimple(id);
     }
-    
+
+    public RecipeDTO getRecipeDTO() {
+        return RecipeDTO;
+    }
+
 }

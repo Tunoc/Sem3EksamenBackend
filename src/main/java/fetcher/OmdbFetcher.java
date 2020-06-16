@@ -9,7 +9,7 @@ import utils.HttpUtils;
  *
  * @author rando
  */
-public class OmdbFetcher implements FetcherInterface{
+public class OmdbFetcher{
     private String url;
     private OmdbApiDTO omdbApiDTO;
             
@@ -17,7 +17,6 @@ public class OmdbFetcher implements FetcherInterface{
         this.url = url;
     }
     
-    @Override
     public void doWork() throws IOException {
         Gson gson = new Gson();
         String omdbAPI = HttpUtils.fetchData(url);

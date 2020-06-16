@@ -8,20 +8,20 @@ import java.util.List;
  */
 public class RecipeDTO {
 
-    private String id;
+    private Long id;
     private String name;
     private String preparation_time;
     private String category;
     private List<String> directions;
-    private List<String> ingredient_list;
+    private List<IngredientDTO> ingredient_list;
 
     public RecipeDTO(String name, String preparation_time, String category) {
         this.name = name;
         this.preparation_time = preparation_time;
         this.category = category;
     }
-    
-    public RecipeDTO(String id, String name, String preparation_time, String category, List<String> directions, List<String> ingredient_list) {
+
+    public RecipeDTO(Long id, String name, String preparation_time, String category, List<String> directions, List<IngredientDTO> ingredient_list) {
         this.id = id;
         this.name = name;
         this.preparation_time = preparation_time;
@@ -30,8 +30,12 @@ public class RecipeDTO {
         this.ingredient_list = ingredient_list;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -50,7 +54,7 @@ public class RecipeDTO {
         return directions;
     }
 
-    public List<String> getIngredient_list() {
+    public List<IngredientDTO> getIngredient_list() {
         return ingredient_list;
     }
 
