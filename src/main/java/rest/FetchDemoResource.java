@@ -2,8 +2,6 @@ package rest;
 
 import com.google.gson.Gson;
 import dto.CompleteDTO;
-import dto.RandomCatDTO;
-import dto.RandomDogDTO;
 import facades.FetchFacade;
 import java.io.IOException;
 import javax.annotation.security.RolesAllowed;
@@ -30,22 +28,22 @@ public class FetchDemoResource {
         return gson.toJson(cDTO);
     }
     
-    @GET
-    @Path("catpic")
-    @RolesAllowed("user")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getCatPic() throws IOException {
-        RandomCatDTO randomCatDTO = facade.getCatPic();
-        return gson.toJson(randomCatDTO);
-    }
-    
-    @GET
-    @Path("dogpic")
-    @RolesAllowed("user")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getDogPic() throws IOException {
-        RandomDogDTO randomDogDTO = facade.getDogPic();
-        return gson.toJson(randomDogDTO);
-    }
+//    @GET
+//    @Path("catpic")
+//    @RolesAllowed("user")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public String getCatPic() throws IOException {
+//        RandomCatDTO randomCatDTO = facade.getCatPic();
+//        return gson.toJson(randomCatDTO);
+//    }
+//    
+//    @GET
+//    @Path("dogpic")
+//    @RolesAllowed("user")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public String getDogPic() throws IOException {
+//        RandomDogDTO randomDogDTO = facade.getDogPic();
+//        return gson.toJson(randomDogDTO);
+//    }
     
 }

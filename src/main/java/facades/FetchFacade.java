@@ -2,8 +2,7 @@ package facades;
 
 import com.google.gson.Gson;
 import dto.CompleteDTO;
-import dto.RandomCatDTO;
-import dto.RandomDogDTO;
+import dto.RecipeDTO;
 import fetcher.ChuckFetcher;
 import fetcher.FetcherInterface;
 import fetcher.KanyeRestFetcher;
@@ -23,7 +22,7 @@ import utils.HttpUtils;
 public class FetchFacade {
 
     private static FetchFacade instance;
-    private Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
     //Private Constructor to ensure Singleton
     private FetchFacade() {
@@ -35,11 +34,40 @@ public class FetchFacade {
         }
         return instance;
     }
+
+    public static List<RecipeDTO> getAllRecipe() throws IOException {
+        String fetchedJSONString = HttpUtils.fetchData("https://cphdat.dk/recipes");
+        if (fetchedJSONString.contains("error")) {
+            //throw new MovieNotFoundException("No movie found with id: " + id);
+        }
+        //test test = gson.fromJson(fetchedJSONString, test.class);
+        
+        //RecipeCollectionDTO rcDTO = new RecipeCollectionDTO(gson.fromJson(fetchedJSONString, RecipeCollectionDTO.class));
+        //Fix the conversion from recepies to something i can use.
+        
+        String editedString = fetchedJSONString.substring(1, fetchedJSONString.length()-1);
+        
+        
+        
+        List<RecipeDTO> rDTO = new ArrayList();
+        rDTO.add(gson.fromJson(editedString, RecipeDTO.class));
+        System.out.println(rDTO);
+        return rDTO;
+    }
     
+    public static void main(String[] args) throws IOException {
+        List<RecipeDTO> test = new ArrayList();
+        test.addAll(0, getAllRecipe());
+        
+    }
+
     public CompleteDTO runParalel() throws InterruptedException {
         OmdbFetcher omdbFetcher = new OmdbFetcher("http://www.omdbapi.com/?t=Game%20Of%20Thrones&Season1&apikey=6b10a5de");
         ChuckFetcher chuckFetcher = new ChuckFetcher("https://api.chucknorris.io/jokes/random");
         KanyeRestFetcher kanyerestFetcher = new KanyeRestFetcher("https://api.kanye.rest/");
+        
+        //Lav om her så den paralel fetcher recepies baseret på ens recepie ID'er.
+        
         List<FetcherInterface> urls = new ArrayList();
         urls.add(omdbFetcher);
         urls.add(chuckFetcher);
@@ -59,17 +87,5 @@ public class FetchFacade {
         workingJack.awaitTermination(15, TimeUnit.SECONDS);
         return new CompleteDTO(omdbFetcher.getOmdbApiDTO(), chuckFetcher.getChuckDTO(), kanyerestFetcher.getKanyeRestDto());
     }
-    
-    public RandomCatDTO getCatPic() throws IOException {
-        String catAPI = HttpUtils.fetchData("https://aws.random.cat/meow");
-        RandomCatDTO randomCatDTO = gson.fromJson(catAPI, RandomCatDTO.class);
-        return randomCatDTO;
-    }
-    
-    public RandomDogDTO getDogPic() throws IOException {
-        String dogAPI = HttpUtils.fetchData("https://random.dog/woof.json");
-        RandomDogDTO randomDogDTO = gson.fromJson(dogAPI, RandomDogDTO.class);
-        return randomDogDTO;
-    }
-    
+
 }
